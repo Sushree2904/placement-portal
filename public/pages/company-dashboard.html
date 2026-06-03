@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Dashboard - PlacementHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+<div class="d-flex">
+    <div class="sidebar col-md-2 p-0">
+        <div class="p-3 text-white border-bottom border-secondary">
+            <div class="d-flex align-items-center gap-2">
+                <div class="avatar" style="width:36px;height:36px;font-size:1rem;background:#198754" id="sidebarAvatar">C</div>
+                <div>
+                    <div class="fw-semibold small" id="sidebarName">Company</div>
+                    <div class="text-white-50" style="font-size:11px">Recruiter</div>
+                </div>
+            </div>
+        </div>
+        <nav class="nav flex-column pt-2">
+            <a class="nav-link active" href="#" onclick="showSection('jobs')"><i class="bi bi-briefcase"></i> My Job Posts</a>
+            <a class="nav-link" href="#" onclick="showSection('postjob')"><i class="bi bi-plus-circle"></i> Post a Job</a>
+            <a class="nav-link" href="#" onclick="showSection('profile')"><i class="bi bi-building"></i> Company Profile</a>
+            <hr class="border-secondary mx-3">
+            <a class="nav-link text-danger" href="#" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</a>
+        </nav>
+    </div>
+
+    <div class="flex-fill p-4" style="background:#f8f9fa;min-height:100vh">
+        <div class="toast-container" id="toastContainer"></div>
+
+        <!-- My Jobs -->
+        <div id="sec-jobs" class="section active">
+            <h4 class="fw-bold mb-1">My Job Postings</h4>
+            <p class="text-muted mb-4">Manage all your posted jobs and view applicants</p>
+            <div id="jobsList"></div>
+        </div>
+
+        <!-- Post Job -->
+        <div id="sec-postjob" class="section">
+            <h4 class="fw-bold mb-4">Post a New Job</h4>
+            <div class="card border-0 shadow-sm p-4" style="max-width:650px">
+                <form id="postJobForm" onsubmit="postJob(event)">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Job Title</label>
+                        <input type="text" name="title" class="form-control" placeholder="e.g. Software Engineer" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Job Description</label>
+                        <textarea name="description" class="form-control" rows="4" placeholder="Describe the role, responsibilities and requirements..." required></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Location</label>
+                            <input type="text" name="location" class="form-control" placeholder="e.g. Bangalore / Remote">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Salary / Package</label>
+                            <input type="text" name="salary" class="form-control" placeholder="e.g. 6 LPA">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Minimum CGPA Required</label>
+                            <input type="number" name="min_cgpa" class="form-control" step="0.01" min="0" max="10" placeholder="e.g. 7.5">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Application Deadline</label>
+                            <input type="date" name="deadline" class="form-control" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success"><i class="bi bi-send me-2"></i>Post Job</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Company Profile -->
+        <div id="sec-profile" class="section">
+            <h4 class="fw-bold mb-4">Company Profile</h4>
+            <div class="card border-0 shadow-sm p-4" style="max-width:600px">
+                <form id="profileForm" onsubmit="updateProfile(event)">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Company Name</label>
+                        <input type="text" name="company_name" id="pCompanyName" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">About the Company</label>
+                        <textarea name="description" id="pDesc" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Website</label>
+                        <input type="url" name="website" id="pWebsite" class="form-control" placeholder="https://yourcompany.com">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">HR Contact Email</label>
+                        <input type="email" name="contact_email" id="pContact" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Profile</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Applicants Modal -->
+        <div class="modal fade" id="applicantsModal" tabindex="-1">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold">Applicants</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead><tr><th>Name</th><th>Email</th><th>Branch</th><th>CGPA</th><th>Skills</th><th>Resume</th><th>Status</th><th>Action</th></tr></thead>
+                                <tbody id="applicantsTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/auth.js"></script>
+<script>
+const user = requireAuth('company');
+if (user) {
+    document.getElementById('sidebarName').textContent = user.name;
+    document.getElementById('sidebarAvatar').textContent = user.name[0].toUpperCase();
+}
+
+function showSection(name) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
+    document.getElementById('sec-' + name).classList.add('active');
+    event.target.closest('.nav-link').classList.add('active');
+    if (name === 'jobs') loadJobs();
+    if (name === 'profile') loadProfile();
+}
+
+async function loadJobs() {
+    const res = await authFetch('/api/company/jobs');
+    const jobs = await res.json();
+    const container = document.getElementById('jobsList');
+    if (!jobs.length) { container.innerHTML = '<div class="alert alert-info">No jobs posted yet. <a href="#" onclick="showSection(\'postjob\')">Post your first job</a></div>'; return; }
+    container.innerHTML = jobs.map(j => `
+        <div class="card job-card mb-3 p-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h6 class="fw-bold mb-1">${j.title}</h6>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <small class="text-muted"><i class="bi bi-geo-alt me-1"></i>${j.location}</small>
+                        <small class="text-muted"><i class="bi bi-cash me-1"></i>${j.salary}</small>
+                        <small class="text-muted"><i class="bi bi-star me-1"></i>Min CGPA: ${j.min_cgpa}</small>
+                        <small class="text-muted"><i class="bi bi-calendar me-1"></i>Deadline: ${new Date(j.deadline).toLocaleDateString()}</small>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <span class="badge ${j.is_active ? 'bg-success' : 'bg-secondary'}">${j.is_active ? 'Active' : 'Closed'}</span>
+                    <button class="btn btn-sm btn-outline-primary" onclick="viewApplicants(${j.id}, '${j.title}')"><i class="bi bi-people me-1"></i>Applicants</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="toggleJob(${j.id}, this)">${j.is_active ? 'Close' : 'Reopen'}</button>
+                </div>
+            </div>
+        </div>`).join('');
+}
+
+async function postJob(e) {
+    e.preventDefault();
+    const form = e.target;
+    const body = { title: form.title.value, description: form.description.value, location: form.location.value, salary: form.salary.value, min_cgpa: form.min_cgpa.value, deadline: form.deadline.value };
+    const res = await authFetch('/api/company/jobs', { method: 'POST', body: JSON.stringify(body) });
+    const data = await res.json();
+    showToast(data.message, res.ok ? 'success' : 'error');
+    if (res.ok) { form.reset(); showSection('jobs'); }
+}
+
+async function viewApplicants(jobId, title) {
+    document.querySelector('#applicantsModal .modal-title').textContent = `Applicants — ${title}`;
+    const res = await authFetch(`/api/company/jobs/${jobId}/applicants`);
+    const apps = await res.json();
+    const tbody = document.getElementById('applicantsTable');
+    const statusColors = { applied: 'primary', shortlisted: 'warning', rejected: 'danger', hired: 'success' };
+    if (!apps.length) { tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-3">No applicants yet.</td></tr>'; }
+    else tbody.innerHTML = apps.map(a => `
+        <tr>
+            <td class="fw-semibold">${a.name}</td>
+            <td>${a.email}</td>
+            <td>${a.branch || '-'}</td>
+            <td><span class="badge bg-primary">${a.cgpa}</span></td>
+            <td><small>${(a.skills || '-').substring(0, 40)}</small></td>
+            <td>${a.resume_url ? `<a href="${a.resume_url}" target="_blank" class="btn btn-sm btn-outline-secondary">View</a>` : '<span class="text-muted">None</span>'}</td>
+            <td><span class="badge bg-${statusColors[a.status] || 'secondary'}">${a.status.toUpperCase()}</span></td>
+            <td>
+                <select class="form-select form-select-sm" style="width:130px" onchange="updateStatus(${a.id}, this.value)">
+                    <option value="applied" ${a.status==='applied'?'selected':''}>Applied</option>
+                    <option value="shortlisted" ${a.status==='shortlisted'?'selected':''}>Shortlisted</option>
+                    <option value="rejected" ${a.status==='rejected'?'selected':''}>Rejected</option>
+                    <option value="hired" ${a.status==='hired'?'selected':''}>Hired</option>
+                </select>
+            </td>
+        </tr>`).join('');
+    new bootstrap.Modal(document.getElementById('applicantsModal')).show();
+}
+
+async function updateStatus(appId, status) {
+    const res = await authFetch(`/api/company/applications/${appId}/status`, { method: 'PUT', body: JSON.stringify({ status }) });
+    const data = await res.json();
+    showToast(data.message, res.ok ? 'success' : 'error');
+}
+
+async function toggleJob(jobId, btn) {
+    const res = await authFetch(`/api/company/jobs/${jobId}/toggle`, { method: 'PUT' });
+    const data = await res.json();
+    showToast(data.message, res.ok ? 'success' : 'error');
+    if (res.ok) loadJobs();
+}
+
+async function loadProfile() {
+    const res = await authFetch('/api/company/profile');
+    const p = await res.json();
+    document.getElementById('pCompanyName').value = p.company_name || '';
+    document.getElementById('pDesc').value = p.description || '';
+    document.getElementById('pWebsite').value = p.website || '';
+    document.getElementById('pContact').value = p.contact_email || '';
+}
+
+async function updateProfile(e) {
+    e.preventDefault();
+    const form = e.target;
+    const res = await authFetch('/api/company/profile', {
+        method: 'PUT',
+        body: JSON.stringify({ company_name: form.company_name.value, description: form.description.value, website: form.website.value, contact_email: form.contact_email.value })
+    });
+    const data = await res.json();
+    showToast(data.message, res.ok ? 'success' : 'error');
+}
+
+loadJobs();
+</script>
+</body>
+</html>

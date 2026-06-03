@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - PlacementHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+<div class="d-flex">
+    <div class="sidebar col-md-2 p-0">
+        <div class="p-3 text-white border-bottom border-secondary">
+            <div class="d-flex align-items-center gap-2">
+                <div class="avatar" style="width:36px;height:36px;font-size:1rem;background:#ffc107;color:#1a2a4a">A</div>
+                <div>
+                    <div class="fw-semibold small">Admin</div>
+                    <div class="text-white-50" style="font-size:11px">Administrator</div>
+                </div>
+            </div>
+        </div>
+        <nav class="nav flex-column pt-2">
+            <a class="nav-link active" href="#" onclick="showSection('overview')"><i class="bi bi-grid"></i> Overview</a>
+            <a class="nav-link" href="#" onclick="showSection('students')"><i class="bi bi-person-graduation"></i> Students</a>
+            <a class="nav-link" href="#" onclick="showSection('companies')"><i class="bi bi-building"></i> Companies</a>
+            <a class="nav-link" href="#" onclick="showSection('alljobs')"><i class="bi bi-briefcase"></i> All Jobs</a>
+            <hr class="border-secondary mx-3">
+            <a class="nav-link text-danger" href="#" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</a>
+        </nav>
+    </div>
+
+    <div class="flex-fill p-4" style="background:#f8f9fa;min-height:100vh">
+        <div class="toast-container" id="toastContainer"></div>
+
+        <!-- Overview -->
+        <div id="sec-overview" class="section active">
+            <h4 class="fw-bold mb-1">Admin Overview</h4>
+            <p class="text-muted mb-4">Platform-wide placement statistics</p>
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="stat-card card text-center p-3" style="background:#e6f0ff">
+                        <div class="display-5 fw-bold text-primary" id="statStudents">-</div>
+                        <div class="text-muted small">Total Students</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card card text-center p-3" style="background:#e6ffef">
+                        <div class="display-5 fw-bold text-success" id="statCompanies">-</div>
+                        <div class="text-muted small">Companies</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card card text-center p-3" style="background:#fff8e6">
+                        <div class="display-5 fw-bold text-warning" id="statJobs">-</div>
+                        <div class="text-muted small">Active Jobs</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card card text-center p-3" style="background:#ffe6e6">
+                        <div class="display-5 fw-bold text-danger" id="statPlaced">-</div>
+                        <div class="text-muted small">Students Placed</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card border-0 shadow-sm p-4">
+                <h6 class="fw-bold mb-3"><i class="bi bi-info-circle me-2"></i>Quick Guide</h6>
+                <ul class="list-unstyled text-muted mb-0">
+                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Default admin login: admin@portal.com / admin123</li>
+                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Students register and upload resumes, then apply to eligible jobs</li>
+                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Companies post jobs and shortlist/hire students</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>When a student is marked "Hired", their status changes to Placed automatically</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Students -->
+        <div id="sec-students" class="section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold mb-0">All Students</h4>
+                <input type="text" class="form-control" style="max-width:250px" placeholder="Search by name..." oninput="filterTable('studentsTable', this.value)">
+            </div>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead><tr><th>Name</th><th>Email</th><th>Branch</th><th>CGPA</th><th>Status</th><th>Resume</th><th>Joined</th></tr></thead>
+                            <tbody id="studentsTable"><tr><td colspan="7" class="text-center text-muted py-4">Loading...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Companies -->
+        <div id="sec-companies" class="section">
+            <h4 class="fw-bold mb-4">All Companies</h4>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead><tr><th>Company Name</th><th>Contact Person</th><th>Email</th><th>Website</th><th>Joined</th></tr></thead>
+                            <tbody id="companiesTable"><tr><td colspan="5" class="text-center text-muted py-4">Loading...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Jobs -->
+        <div id="sec-alljobs" class="section">
+            <h4 class="fw-bold mb-4">All Job Postings</h4>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead><tr><th>Company</th><th>Job Title</th><th>Location</th><th>Min CGPA</th><th>Deadline</th><th>Applicants</th><th>Status</th></tr></thead>
+                            <tbody id="jobsTable"><tr><td colspan="7" class="text-center text-muted py-4">Loading...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/auth.js"></script>
+<script>
+const user = requireAuth('admin');
+
+function showSection(name) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
+    document.getElementById('sec-' + name).classList.add('active');
+    event.target.closest('.nav-link').classList.add('active');
+    if (name === 'students') loadStudents();
+    if (name === 'companies') loadCompanies();
+    if (name === 'alljobs') loadAllJobs();
+}
+
+async function loadDashboard() {
+    const res = await authFetch('/api/admin/dashboard');
+    const d = await res.json();
+    document.getElementById('statStudents').textContent = d.students;
+    document.getElementById('statCompanies').textContent = d.companies;
+    document.getElementById('statJobs').textContent = d.jobs;
+    document.getElementById('statPlaced').textContent = d.placed;
+}
+
+async function loadStudents() {
+    const res = await authFetch('/api/admin/students');
+    const students = await res.json();
+    const tbody = document.getElementById('studentsTable');
+    const statusColors = { active: 'success', placed: 'primary', inactive: 'secondary' };
+    tbody.innerHTML = students.map(s => `
+        <tr>
+            <td class="fw-semibold">${s.name}</td>
+            <td>${s.email}</td>
+            <td>${s.branch || '-'}</td>
+            <td><span class="badge bg-primary">${s.cgpa || 0}</span></td>
+            <td><span class="badge bg-${statusColors[s.status] || 'secondary'}">${s.status || 'active'}</span></td>
+            <td>${s.resume_url ? `<a href="${s.resume_url}" target="_blank" class="btn btn-sm btn-outline-secondary">View</a>` : '<span class="text-muted">None</span>'}</td>
+            <td>${new Date(s.created_at).toLocaleDateString()}</td>
+        </tr>`).join('') || '<tr><td colspan="7" class="text-center text-muted py-4">No students registered.</td></tr>';
+}
+
+async function loadCompanies() {
+    const res = await authFetch('/api/admin/companies');
+    const companies = await res.json();
+    const tbody = document.getElementById('companiesTable');
+    tbody.innerHTML = companies.map(c => `
+        <tr>
+            <td class="fw-semibold">${c.company_name}</td>
+            <td>${c.name}</td>
+            <td>${c.email}</td>
+            <td>${c.website ? `<a href="${c.website}" target="_blank">${c.website}</a>` : '-'}</td>
+            <td>${new Date(c.created_at).toLocaleDateString()}</td>
+        </tr>`).join('') || '<tr><td colspan="5" class="text-center text-muted py-4">No companies registered.</td></tr>';
+}
+
+async function loadAllJobs() {
+    const res = await authFetch('/api/admin/jobs');
+    const jobs = await res.json();
+    const tbody = document.getElementById('jobsTable');
+    tbody.innerHTML = jobs.map(j => `
+        <tr>
+            <td class="fw-semibold">${j.company_name}</td>
+            <td>${j.title}</td>
+            <td>${j.location}</td>
+            <td>${j.min_cgpa}</td>
+            <td>${new Date(j.deadline).toLocaleDateString()}</td>
+            <td><span class="badge bg-secondary">${j.total_applicants}</span></td>
+            <td><span class="badge ${j.is_active ? 'bg-success' : 'bg-secondary'}">${j.is_active ? 'Active' : 'Closed'}</span></td>
+        </tr>`).join('') || '<tr><td colspan="7" class="text-center text-muted py-4">No jobs posted.</td></tr>';
+}
+
+function filterTable(tableId, query) {
+    const rows = document.querySelectorAll(`#${tableId} tr`);
+    rows.forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(query.toLowerCase()) ? '' : 'none';
+    });
+}
+
+loadDashboard();
+</script>
+</body>
+</html>
